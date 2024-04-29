@@ -37,7 +37,6 @@ process VCF2MAF {
     echo 'Output MAF ${out_maf} compressing...' 
     gzip -c ${out_maf} > ${out_maf_gz}
     echo 'Output MAF ${out_maf_gz} compressed successfully'
-    """
     
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
