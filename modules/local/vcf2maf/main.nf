@@ -26,14 +26,37 @@ process VCF2MAF {
     """
     gzip -cd  ${input_vcf} > ${input_vcf_decomp}
     echo 'Input VCF file ${input_vcf} de-compressed successfully.'
-    vcf2maf.pl \\
+    
+    num_samples=\$(bcftools query -l ${input_vcf_decomp} | wc -l)
+    tumor_id=\$(bcftools query -l ${input_vcf_decomp} | head -1)
+    suffix=""
+
+    if [ "\${num_samples}" -eq 2 ]; then
+        echo "VCF with tumor-normal pair found.."
+        normal_id=\$(bcftools query -l ${input_vcf_decomp} | head -2 | tail -1)
+        suffix="--vcf-tumor-id \${tumor_id} --vcf-normal-id \${normal_id}"
+    else
+        suffix="--vcf-tumor-id \${tumor_id}"
+    fi
+
+    vcf2maf_cmd="vcf2maf.pl \\
      --species ${species} \\
      --ncbi-build ${assembly} \\
      --ref-fasta ${ref_fasta} \\
      --inhibit-vep \\
      --verbose \\
      --input-vcf ${input_vcf_decomp} \\
-     --output-maf ${out_maf}
+     --output-maf ${out_maf} \\
+     \${suffix}"
+
+
+    echo "----------------------------"
+    echo "\${vcf2maf_cmd}"
+    echo "----------------------------"
+
+    # Execute the vcf2maf command
+    eval \${vcf2maf_cmd}
+
     echo 'Output MAF ${out_maf} compressing...' 
     gzip -c ${out_maf} > ${out_maf_gz}
     echo 'Output MAF ${out_maf_gz} compressed successfully'
@@ -41,6 +64,7 @@ process VCF2MAF {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         vcf2maf: 1.6.21
+        bcftools: \$(echo \$(bcftools --version|head -1|cut -d' ' -f2))
     END_VERSIONS
     """
 }
