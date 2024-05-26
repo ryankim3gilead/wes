@@ -27,7 +27,8 @@ workflow VCF_ANNOTATE_ENSEMBLVEP {
         val_cache_version,
         ch_cache,
         ch_fasta,
-        ch_extra_files
+        ch_extra_files,
+        ch_fasta_path
     )
     VCF2MAF(ENSEMBLVEP_VEP.out.vcf, val_species, val_genome, ch_fasta_path)
 

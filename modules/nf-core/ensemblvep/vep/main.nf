@@ -16,6 +16,7 @@ process ENSEMBLVEP_VEP {
     path  cache
     tuple val(meta2), path(fasta)
     path  extra_files
+    path fasta_path
 
     output:
     tuple val(meta), path("*.vcf.gz")  , optional:true, emit: vcf
@@ -33,7 +34,8 @@ process ENSEMBLVEP_VEP {
     def compress_cmd = args.contains("--compress_output") ? '' : '--compress_output bgzip'
     def prefix = task.ext.prefix ?: "${meta.id}"
     def dir_cache = cache ? "\${PWD}/${cache}" : "/.vep"
-    def reference = fasta ? "--fasta $fasta" : ""
+    def reference = fasta_path ? "--fasta $fasta" : ""
+    println "fasta:${fasta_path}"
     """
     vep \\
         -i $vcf \\
@@ -47,7 +49,7 @@ process ENSEMBLVEP_VEP {
         --cache_version $cache_version \\
         --dir_cache $dir_cache \\
         --fork $task.cpus \\
-        --stats_file ${prefix}.summary.html \\
+        --stats_file ${prefix}.summary.html
 
 
     cat <<-END_VERSIONS > versions.yml
