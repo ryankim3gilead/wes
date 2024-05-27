@@ -34,7 +34,7 @@ process ENSEMBLVEP_VEP {
     def compress_cmd = args.contains("--compress_output") ? '' : '--compress_output bgzip'
     def prefix = task.ext.prefix ?: "${meta.id}"
     def dir_cache = cache ? "\${PWD}/${cache}" : "/.vep"
-    def reference = fasta_path ? "--fasta $fasta" : ""
+    //def reference = fasta_path ? "--fasta $fasta_path" : ""
     println "fasta:${fasta_path}"
     """
     vep \\
@@ -42,7 +42,7 @@ process ENSEMBLVEP_VEP {
         -o ${prefix}.${file_extension}.gz \\
         $args \\
         $compress_cmd \\
-        $reference \\
+        --fasta $fasta_path \\
         --assembly $genome \\
         --species $species \\
         --cache \\
